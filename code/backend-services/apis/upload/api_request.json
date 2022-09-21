@@ -1,0 +1,58 @@
+{
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "abc",
+      "location": "location",
+      "usagePeriod": "20h",
+      "metadata": {
+        "sku": "publicIpSku"
+      }
+    },
+    {
+      "type": "Microsoft.Network/loadBalancer",
+      "name": "LB-1",
+      "location": "location",
+      "usagePeriod": "20h",
+      "metadata": {
+        "sku": "LB-type",
+        "rules": 20,
+        "dataProcessedGB": 6
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "net",
+      "location": "location",
+      "usagePeriod": "20h",
+      "metadata": {
+        "sku": "publicIpSku"
+      }
+
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "id": "vm1",
+      "location": "location",
+      "usagePeriod": "20h",
+      "metadata": {
+        "hardwareProfile": "",
+        "imageReference": {
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "[parameters('OSVersion')]",
+          "version": "latest",
+          "storageAccountType": "StandardSSD_LRS"
+        },
+        "dataDisks": [
+          {
+            "diskSizeGB": 1023,
+            "diskId": 0,
+            "storageAccountType": "Empty"
+          }
+        ]
+      }
+    }
+  ]
+
+}
