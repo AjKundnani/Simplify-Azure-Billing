@@ -1,9 +1,12 @@
+import copy
+import pdb
+
 from vsdx import VisioFile
 
 RES_PROPERTIES = {
     "Public IP Address": {
         "type": "Microsoft.Network/publicIPAddresses",
-        "location": "location",
+        "region": "location",
         "usagePeriod": "20h",
         "metadata": {
             "sku": "publicIpSku"
@@ -12,7 +15,7 @@ RES_PROPERTIES = {
 
     "Load Balancers": {
         "type": "Microsoft.Network/loadBalancer",
-        "location": "location",
+        "region": "location",
         "usagePeriod": "20h",
         "metadata": {
             "sku": "LB-type",
@@ -23,10 +26,10 @@ RES_PROPERTIES = {
 
     "Virtual Machine": {
         "type": "Microsoft.Compute/virtualMachines",
-        "location": "location",
+        "region": "US East",
         "usagePeriod": "20h",
         "metadata": {
-            "hardwareProfile": "",
+            "hardwareProfile": "Standard_D1_v2",
             "imageReference": {
                 "publisher": "MicrosoftWindowsServer",
                 "offer": "WindowsServer",
@@ -61,7 +64,9 @@ def get_resources_from_visio(visio_file):
             shape_type = shape_type.split("(")[0].strip()
             res_name = shap.split("-")[1].strip()
             if shape_type in RES_PROPERTIES:
-                res.append({res_name: RES_PROPERTIES[shape_type]})
+                new_res = copy.deepcopy(RES_PROPERTIES[shape_type])
+                new_res.update({"name": res_name})
+                res.append(new_res)
 
         print(res)
         return res
