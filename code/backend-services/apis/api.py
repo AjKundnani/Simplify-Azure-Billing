@@ -25,6 +25,11 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route('/')
+def hello():
+    return redirect("/apidocs", code=302)
+
+
 @app.route('/vsdx-resources', methods=['POST'])
 def upload_file():
     """
@@ -42,13 +47,31 @@ def upload_file():
         in: formData
         type: file
     definitions:
-      resources_:
+      vsdx_output_body:
         type: object
         properties:
           resources_found:
             type: array
             items:
-              type: string
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: Microsoft.Compute/virtualMachines
+                region:
+                  type: string
+                  example: US East
+                usagePeriod:
+                  type: string
+                  example: 20h
+                metadata:
+                  type: object
+                  example: {
+            "hardwareProfile": "Standard_D1_v2",
+            "imageReference": {},
+            "dataDisks": []
+        }
+
 
     responses:
       500:
@@ -58,7 +81,7 @@ def upload_file():
       200:
         description: Success!
         schema:
-          $ref: '#/definitions/resources_'
+          $ref: '#/definitions/vsdx_output_body'
     """
     if 'file' not in request.files:
         resp = jsonify({'message': 'No file part in the request'})
@@ -88,8 +111,7 @@ def upload_file():
 
 @app.route('/cost', methods=["POST"])
 def cost():
-    """Example endpoint returning a list of colors by palette
-    This is using docstrings for specifications.
+    """This api returns cost estimation for given resources
 
     ---
     tags:
@@ -101,25 +123,51 @@ def cost():
           in: body
           required: true
           schema:
-            id : toto
-            required:
-              - first
-              - last
-            properties:
-              first:
-                type: string
-                description: Unique identifier representing a First Name
-              last:
-                type: string
-                description: Unique identifier representing a Last Name
+            $ref: '#/definitions/input_body'
     definitions:
-      resources_:
+      input_body:
         type: object
         properties:
-          resources_found:
+          resources:
             type: array
             items:
-              type: string
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: Microsoft.Network/loadBalancer
+                region:
+                  type: string
+                  example: US East
+                usagePeriod:
+                  type: string
+                  example: 300h
+                metadata:
+                  type: object
+                  example: { "sku": "internal/private", "rules": 20, "dataProcessedGB": 6}
+      output_body:
+        type: object
+        properties:
+          resources:
+            type: array
+            items:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: Microsoft.Network/loadBalancer
+                region:
+                  type: string
+                  example: US East
+                usagePeriod:
+                  type: string
+                  example: 300h
+                cost:
+                  type: string
+                  example: $45.56
+                metadata:
+                  type: object
+                  example: { "sku": "internal/private", "rules": 20, "dataProcessedGB": 6}
 
     responses:
       500:
@@ -129,7 +177,7 @@ def cost():
       200:
         description: Success!
         schema:
-          $ref: '#/definitions/resources_'
+          $ref: '#/definitions/output_body'
     """
     try:
         res = process_cost(request.get_json())
